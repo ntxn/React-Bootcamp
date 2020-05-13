@@ -114,7 +114,7 @@ It has two main components: `Provider` and `connect`.
 </Provider>
 ```
 
-Then in any components within the `App` needs access to the store, we need to call `connect` in that component. We pass in `connect` a function to define which state elements we need (`mapStateToProps`). And if that component needs to have access to `Action Creators`, then we pass another Obj with those Action Creator functions to make `redux` links the functions to the `State`
+Then in any components within the `App` needs access to the store, we need to call `connect` in that component. We pass in `connect` a function to define which state elements we need (`mapStateToProps`). And if that component needs to have access to `Action Creators`, then we pass another Obj with those Action Creator functions to make `redux` links the functions to the `State`. The action creator functions and the elements defined in `mapStateToProps` will be available in the component's props.
 
 ```js
 const mapStateToProps = state => {
