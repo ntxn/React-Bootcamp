@@ -101,3 +101,38 @@ To solve this problem, we'll use `Link` Component from `react-router-dom` in pla
 
   <img src="screenshots/navigation-with-react-router-2.png" width="600">
   <img src="screenshots/navigation-with-react-router-3.png" width="600">
+
+## Different Router Types
+
+React Router has 3 different types of routers: `BrowserRouter`, `HashRouter`, `MemoryRouter`
+
+The difference between them is the part of the URL that they decide to look at to show what on the screen.
+
+HashRouter adds a `/#` between the Top Level Domain (TLD) and the `path` in a `Route`
+
+  <img src="screenshots/different-router-types-1.png" width="700">
+
+Why do we care? A lot of it comes down to deployment.
+
+### BrowserRouter
+
+- `BrowserRouter` by far the most complicated to deploy inside of any realistic settings. In many cases, doing deployment with BrowerRouter is very easy because many deployment services understand that you'll use something similar to BrowserRouter to deploy your application so these services make deployment with BrowserRouter pretty straight forward. However, in many cases, deployment with BrowserRouter can be very challenging
+
+  <img src="screenshots/different-router-types-2.png" width="800">
+
+  <img src="screenshots/different-router-types-3.png" width="800">
+
+  <img src="screenshots/different-router-types-4.png" width="800">
+
+- When we're developing our app with create-react-app, we're running the app with create-react-app Development Server, this server has a flow setup like in the screenshot. When we make a request to the server to get `/pagetwo`, the server automatically returns the index.html file. After the browser loads the html file, it sees there's a link to a JS file `bundle.js` (the file contains all of our application code). The application then loads up => react router loads up => the history, created by BrowserRouter inspect the url, sees that we're at the route `/pagetwo`. The History tells BrowserRouter that we're at PageTwo. The BrowserRouter then tell the `Route` we're at page two so render appropreately
+
+- And the key to make `BrowserRouter` works is the last step: when it doesn't see a matching route, it'll return the index.html file instead of a 404 Page not found like in traditional web server.
+
+- So to make `BrowserRouter` work in production, we need to set up server in the idential fashion, and this is what makes using `BrowserRouter` challenging
+
+### HashRouter
+
+- With HashRouter, you're supposed to tell the server to not take a look at anything after the hash so that it can only return the index.html page.
+- Example: when you make a request to `localhost:3000/#/pagetwo`, the server return a response based on the url `localhost:3000` which returns index.html. Then after the application loads up, the frontend app then looks at the path after the `#` to determine what to show on the screen
+- A HashRouter is more flexible than BrowserRouter because it doesn't require any special configurations by backend server.
+- An good example regards when to use HashRouter: when you deploy to Github Pages. Github Pages doesn't allow you to do any special types of logic to only return index.html page like how create-react-app dev server
