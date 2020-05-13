@@ -40,7 +40,9 @@ We never want to install `react-router` by itself. `react-router` library publis
 
 To get the actual implementation logic of react-router that works inside the browser, we'd install `react-router-dom`. So whenever we want to use `react router` in a project to handle navigation in browsers, we always use `react-router-dom`
 
-**How React Router Works**
+# Theory
+
+## How React Router Works
 
 ```js
 import React from "react";
@@ -88,3 +90,14 @@ What RR really cares about is the part after the domain, so RR extracts that pat
 By default, RR checks if this path contains the paths define with `Route` to display all the contained paths. In the example, the extracted path is `/page` so it'll display the components in path `/` and `/page`.
 
 To override this behavior, we'd include another props `exact` to `Route` like `<Route path="/" exact component={PageOne} />`. With the keyword `exact`, RR will compare `===` instead of `contains`. If it doesn't match 100%, it won't display anything. This only work for any Routes that includes `exact`
+
+## Navigation with React Router
+
+We usually use anchor tage `<a>` to navigate between different pages such as `<a href="/pagetwo">Navigate to Page Two</a>`. Even though using `<a>` seems to work, we don't want to use it with React Router because when you click on the `<a>` tag, the browser will make the request and replace the current HTML by the new response HTML. It also dump all the data that had been loaded into the react-redux application. The users have to do it all over again to have that data back.
+
+  <img src="screenshots/navigation-with-react-router-1.png" width="600">
+
+To solve this problem, we'll use `Link` Component from `react-router-dom` in place of an anchor tag: `<Link to="/pagetwo">Navigate to Page Two</Link>`. By using `Link`, RR will prevent the browsers from making a request to the server. Instead RR will look at the route and hide/show different components on the same HTML file
+
+  <img src="screenshots/navigation-with-react-router-2.png" width="600">
+  <img src="screenshots/navigation-with-react-router-3.png" width="600">
