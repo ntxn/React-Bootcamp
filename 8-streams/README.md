@@ -2,7 +2,9 @@
 
 ## Building a streaming web app service similar to `twitch` but way simpler
 
-<img src="screenshots/app-outline.png" width="700">
+<img src="screenshots/app-outline-1.png" width="700">
+
+<img src="screenshots/app-outline-2.png" width="700">
 
 <img src="screenshots/twitch-vs-our-app.png" width="450">
 
@@ -206,4 +208,4 @@ When we're done debugging, we shoud remove the query string to avoid the app thr
 
 To use Redux Form, we need to install npm package `redux-form`. It has great documentation: [example](https://redux-form.com/8.3.0/examples/wizard/)
 
-Check the file `StreamCreate.js` in this [commit](#) to see how we apply Redux Form
+Check the file `StreamCreate.js` in this [commit](https://github.com/ngannguyen117/React-Bootcamp/blob/2e8c79a2d03063945ad0a17130245272071a6b68/8-streams/client/src/components/streams/StreamCreate.js) to see how we apply Redux Form
