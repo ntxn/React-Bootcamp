@@ -171,6 +171,12 @@ This'd be the prefered approach
 
 # Handling Forms with Redux Form
 
+## Intro
+
+<img src="screenshots/form-1.png" width="450">
+
+<img src="screenshots/form-2.png" width="780">
+
 ## Redux Dev Tools
 
 Redux Form is complex because we don't know what's going on in the store so by using redux dev tools extension (for Chrome and Firefox), we'd have access to Redux store at different point in time.
@@ -193,3 +199,11 @@ http://localhost:3000/?debug_session=loggedIn
 `loggedIn` is the name of the debug session, we can have different debug session by entering different names. The redux dev tools will persist all the data in the store that we've been working on.'
 
 When we're done debugging, we shoud remove the query string to avoid the app throws errors because of the persisted data stored in the debug session.
+
+`Airbnb` also use the same extension and have their redux store public so we can have a look at their store to have an idea how to manage complex redux store.
+
+## Redux Form
+
+To use Redux Form, we need to install npm package `redux-form`. It has great documentation: [example](https://redux-form.com/8.3.0/examples/wizard/)
+
+Check the file `StreamCreate.js` in this [commit](#) to see how we apply Redux Form
