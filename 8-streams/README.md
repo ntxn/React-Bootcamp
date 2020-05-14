@@ -146,3 +146,25 @@ Why do we care? A lot of it comes down to deployment.
   <img src="screenshots/auth-3.png" width="700">
 
   <img src="screenshots/auth-4.png" width="450">
+
+To use the Google API library, we have to include this script in the `<head>` of `index.html`
+
+```html
+<script src="https://apis.google.com/js/api.js"></script>
+```
+
+## OAuth with Redux
+
+There are 2 possible ways to integrate Google Authentication with Redux
+
+### Option 1:
+
+<img src="screenshots/auth-5.png" width="700">
+
+We'd leave the current GoogleAuth Component untouch. This way is not closely followed the convention of Redux so if we'd want to 100% follow the Redux convention, this is not the best approach. However, we'll take this approach because at the end of this project, we'd end up with a single Component that shows the entire process with Google Authentication from start to finish
+
+### Option 2:
+
+<img src="screenshots/auth-6.png" width="500">
+
+This'd be the prefered approach
