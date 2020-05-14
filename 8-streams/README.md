@@ -168,3 +168,28 @@ We'd leave the current GoogleAuth Component untouch. This way is not closely fol
 <img src="screenshots/auth-6.png" width="500">
 
 This'd be the prefered approach
+
+# Handling Forms with Redux Form
+
+## Redux Dev Tools
+
+Redux Form is complex because we don't know what's going on in the store so by using redux dev tools extension (for Chrome and Firefox), we'd have access to Redux store at different point in time.
+
+We need to install the extension to our browser, then insert some code in the root `index.js` to hook our app with this extension
+
+```js
+import { createStore, applyMiddleware, compose } from "redux";
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const store = createStore(reducers, composeEnhancers(applyMiddleware()));
+```
+
+We can also debug our react redux app with this extension by inserting a query string to the url:
+
+```html
+http://localhost:3000/?debug_session=loggedIn
+```
+
+`loggedIn` is the name of the debug session, we can have different debug session by entering different names. The redux dev tools will persist all the data in the store that we've been working on.'
+
+When we're done debugging, we shoud remove the query string to avoid the app throws errors because of the persisted data stored in the debug session.
