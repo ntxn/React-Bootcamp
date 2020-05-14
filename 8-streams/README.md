@@ -136,3 +136,13 @@ Why do we care? A lot of it comes down to deployment.
 - Example: when you make a request to `localhost:3000/#/pagetwo`, the server return a response based on the url `localhost:3000` which returns index.html. Then after the application loads up, the frontend app then looks at the path after the `#` to determine what to show on the screen
 - A HashRouter is more flexible than BrowserRouter because it doesn't require any special configurations by backend server.
 - An good example regards when to use HashRouter: when you deploy to Github Pages. Github Pages doesn't allow you to do any special types of logic to only return index.html page like how create-react-app dev server
+
+# OAuth Authentication
+
+  <img src="screenshots/auth-1.png" width="700">
+
+  <img src="screenshots/auth-2.png" width="700">
+
+  <img src="screenshots/auth-3.png" width="700">
+
+  <img src="screenshots/auth-4.png" width="450">
