@@ -299,3 +299,30 @@ Check the file `StreamCreate.js` in this [commit](https://github.com/ngannguyen1
 
   export default Modal;
   ```
+
+# Implement Streaming Video
+
+## Folder rtmpserver
+
+- Create a `rtmp` server to host live stream videos with this `node-media-server` npm package [link](https://www.npmjs.com/package/node-media-server).
+- Create `index.js` and paste the setup code in the instruction form the npmjs link
+- Run `node index.js` to start server
+
+## OBS
+
+Download OBS software to stream video. Follow instruction in the link above to connect the streaming video from OBS to the rtmp server
+
+## Use flv.js to access livestream over http-flv
+
+- Download package `npm i flv.js`
+- Set up flv in the React app:
+
+  ```js
+  // in StreamShow.js
+  this.player = flv.createPlayer({
+    type: "flv",
+    url: `http://localhost:8000/live/${id}.flv`,
+  });
+  this.player.attachMediaElement(this.videoRef.current);
+  this.player.load();
+  ```
