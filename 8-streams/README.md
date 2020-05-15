@@ -139,6 +139,45 @@ Why do we care? A lot of it comes down to deployment.
 - A HashRouter is more flexible than BrowserRouter because it doesn't require any special configurations by backend server.
 - An good example regards when to use HashRouter: when you deploy to Github Pages. Github Pages doesn't allow you to do any special types of logic to only return index.html page like how create-react-app dev server
 
+### Plain Router with Different History Type
+
+- Essentially, both `BrowserRouter` and `HashRouter` behave the way they do is because of the History type that they have.
+- BrowserRouter creates and manages History called BrowserHistory. The BrowserHistory decides to only look at the part of a url after the main domain. Only Component render inside of BrowserRouter will be passed down this History Object.
+- The History is not only watching the address bar, it can also change the address bar. So if a component has access to this history object, it can easily trigger navigation like redirect to another route.
+- For components rendered outside of BrowserRouter to trigger navigation, we could potentially pass the history object to Action Creator. However it's a pain.
+
+  <img src="screenshots/different-router-types-5.png" width="600">
+
+- A simpler solution for programmatic Navigation is to use a plain Router with a BrowserHistory that we manage. That way, we'd have access to the history obj to trigger any navigation we want
+
+```js
+// history.js
+import { createBrowserHistory } from "history";
+export default createBrowserHistory();
+
+// part of App.js
+import { Router, Route } from "react-router-dom";
+import history from "../history";
+
+<Router history={history}>
+  <div>
+    <Header />
+    <Route path="/" exact component={StreamList} />
+    <Route path="/streams/new" exact component={StreamCreate} />
+    <Route path="/streams/show/:id" exact component={StreamShow} />
+  </div>
+</Router>;
+
+// part of actions index.js
+import history from "../history";
+
+export const editStream = (id, formValues) => async (dispatch) => {
+  const response = await streams.patch(`/streams/${id}`, formValues);
+  dispatch({ type: EDIT_STREAM, payload: response.data });
+  history.push("/"); // Programmatic navigation to get user back to the root route
+};
+```
+
 # OAuth Authentication
 
   <img src="screenshots/auth-1.png" width="700">
@@ -209,3 +248,11 @@ When we're done debugging, we shoud remove the query string to avoid the app thr
 To use Redux Form, we need to install npm package `redux-form`. It has great documentation: [example](https://redux-form.com/8.3.0/examples/wizard/)
 
 Check the file `StreamCreate.js` in this [commit](https://github.com/ngannguyen117/React-Bootcamp/blob/2e8c79a2d03063945ad0a17130245272071a6b68/8-streams/client/src/components/streams/StreamCreate.js) to see how we apply Redux Form
+
+# React Portals
+
+## Why not using Modals?
+
+It's a challenge to use Modal with React
+
+<img src="screenshots/modal.png" width="600">
