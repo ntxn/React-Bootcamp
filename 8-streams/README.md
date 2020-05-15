@@ -253,6 +253,49 @@ Check the file `StreamCreate.js` in this [commit](https://github.com/ngannguyen1
 
 ## Why not using Modals?
 
-It's a challenge to use Modal with React
+- A Modal is a popup on the screen that gray out the background so we can only focus on the modal's content. This means the modal has to be on top of other elements with higher z-index.
 
-<img src="screenshots/modal.png" width="600">
+- It's a challenge to use Modal with React because if we render a Modal as a child of some components, we don't even know how many elements are on top of it to be able to change z-index. If we manage to change css, it might even break the whole app
+
+  <img src="screenshots/modal.png" width="700">
+
+## Solution: Portals
+
+- To make it work in React, we'd use Portal. Instead of making the Modal a direct child of some components, we make it a direct child of the `body`. That way we don't have to worry about its z-index, it'll always be on top of other element.
+
+- You'd want to use Portals when you want render React Component into some HTML that was not created by your React application for example: you try to introduce react into a server side application like a java app that render HTML in the backend, maybe Ruby on Rails or Django, etc.
+
+  <img src="screenshots/portal-1.png" width="700">
+
+  ```html
+  <!-- in index.html: add a div with id modal right after root -->
+  <div id="root"></div>
+  <div id="modal"></div>
+  ```
+
+  ```jsx
+  // in Modal.js
+  import React from "react";
+  import ReactDOM from "react-dom";
+
+  const Modal = (props) => {
+    return ReactDOM.createPortal(
+      <div
+        onClick={props.onDismiss}
+        className="ui dimmer modals visible active"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="ui standard modal visiable active"
+        >
+          <div className="header">{props.title}</div>
+          <div className="content">{props.content}</div>
+          <div className="actions">{props.actions}</div>
+        </div>
+      </div>,
+      document.querySelector("#modal")
+    );
+  };
+
+  export default Modal;
+  ```
