@@ -59,3 +59,45 @@
   A brief summary of the browser-server flow after we include a js script to make the browser requests for the bundle.js for frontend
 
   <img src="screenshots/react-backend-6.png" width=400>
+
+## Setup Routes (Navigation) for Server and Client
+
+- Normal flow of requests made from a browser to React App (without SSR) using BrowserRouter. The server always sends back a single index.html file
+
+  <img src="screenshots/routes-1.png" width=300>
+
+- With the SSR React app, we want Express to pass all requests to React Router and let React Router decides what to send back to the client
+
+  <img src="screenshots/routes-2.png" width=500>
+
+- BrowserRouter works by looking at the address URL and processing the appropriate components to render on the screen. When rendering on the server side, there's no address bar for BrowserRouter to look at so we have to use another component from React Router for the server side `StaticRouter`
+
+  <img src="screenshots/routes-3.png" width=300>
+
+- The app currently already setup for server and client to render its own appropriate JS. We just need to create a single `Routes.js` file that contains all the Route for the app, and pass it in under `StaticRouter` for the server side, and `BrowserRouter` for client side
+
+  ```js
+  // in Routes.js
+  return (
+    <div>
+      <Route exact path="/" component={Home} />
+    </div>
+  );
+
+  // in renderer.js
+  renderToString(
+    <StaticRouter location={req.path} context={{}}>
+      <Routes />
+    </StaticRouter>
+  );
+
+  // in client.js
+  ReactDOM.hydrate(
+    <BrowserRouter>
+      <Routes />
+    </BrowserRouter>,
+    document.querySelector("#root")
+  );
+  ```
+
+  <img src="screenshots/routes-4.png" width=500>
