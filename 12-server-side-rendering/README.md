@@ -101,3 +101,27 @@
   ```
 
   <img src="screenshots/routes-4.png" width=500>
+
+## Integrating Support for Redux in SSR
+
+- ### API Server structure (Already built)
+
+  <img src="screenshots/api-server.png" width=350>
+
+- ### We'd want to integrate Redux for data managing to this app. List of Reducers and Action Creators
+
+  <img src="screenshots/redux-reducers-action-creator.png" width=500>
+
+- ### Normal flow of a request in a traditional, client-side only React/Redux app
+
+  <img src="screenshots/redux-traditional.png" width=350>
+
+- ### A request flow in a React/Redux app with SSR
+
+  <img src="screenshots/redux-in-server.png" width=350>
+
+- ### Challenges to integrate Redux to the server
+  - **Redux needs different configuration on browser vs server**: The way Redux behaves on the server needs to be significantly different from the way it behaves on the client b/c of the other three challenges listed below. In other words, to solve problems with the below three challenges, Redux needs to behave differently on the server. To setup Redux on the server, we'd take a very similar approach to how we setup Router. There will be two Redux stores, one for the server bundle, and one for the client bundle.
+  - **Aspects of authentication needs to be handled on server. Normally this is only on the browser**: The API requires user to logged in in other to access to some routes. This API uses cookie based authentication, so as long as user go through the Oauth authentication process, the browser will be able to authenticate to the API with the use of cookies. The cookie based authentication is very straight forward. However, with SSR, when our app is rendered on the server, we don't easily have access to the cookie data that proves the user is authenticated.
+  - **Need some way to detect when all initial data load action creators are completed on server**: In a normal React/Redux app, whenever we need to load up some data, we'd call an action creator that'll make some Ajax requests and when the requests are resolved, we dispatch an Action and the app naturally updates. After the reducers run, Redux collects all the new states, and rerenders the app automatically. The key there is when we call an Action Creator, the updates occur automatically so we don't get any signals when the action creators finish fetching data. But on the server, when we attempt to fetch some data from an action creator, we need to know the exact instant that the request issued by an action creator is finished so that we can attempt to render the app to a string and send it back to the browser (why? b/c we want to show the user some data as fast as possible). That means we need some way to know when an action creators finish loading some initial data.
+  - **Need state rehydration on the browser**: Similar to how React needs a kickstart to rehydrate (rerender) after the initial HTML loads up, redux also needs a kickstart to rehydrate its process.
