@@ -121,7 +121,55 @@
   <img src="screenshots/redux-in-server.png" width=350>
 
 - ### Challenges to integrate Redux to the server
+
   - **Redux needs different configuration on browser vs server**: The way Redux behaves on the server needs to be significantly different from the way it behaves on the client b/c of the other three challenges listed below. In other words, to solve problems with the below three challenges, Redux needs to behave differently on the server. To setup Redux on the server, we'd take a very similar approach to how we setup Router. There will be two Redux stores, one for the server bundle, and one for the client bundle.
   - **Aspects of authentication needs to be handled on server. Normally this is only on the browser**: The API requires user to logged in in other to access to some routes. This API uses cookie based authentication, so as long as user go through the Oauth authentication process, the browser will be able to authenticate to the API with the use of cookies. The cookie based authentication is very straight forward. However, with SSR, when our app is rendered on the server, we don't easily have access to the cookie data that proves the user is authenticated.
   - **Need some way to detect when all initial data load action creators are completed on server**: In a normal React/Redux app, whenever we need to load up some data, we'd call an action creator that'll make some Ajax requests and when the requests are resolved, we dispatch an Action and the app naturally updates. After the reducers run, Redux collects all the new states, and rerenders the app automatically. The key there is when we call an Action Creator, the updates occur automatically so we don't get any signals when the action creators finish fetching data. But on the server, when we attempt to fetch some data from an action creator, we need to know the exact instant that the request issued by an action creator is finished so that we can attempt to render the app to a string and send it back to the browser (why? b/c we want to show the user some data as fast as possible). That means we need some way to know when an action creators finish loading some initial data.
   - **Need state rehydration on the browser**: Similar to how React needs a kickstart to rehydrate (rerender) after the initial HTML loads up, redux also needs a kickstart to rehydrate its process.
+
+- ### Server Side Data Loading with Redux
+
+  After setting up 2 Redux stores for server side and client side, we can access and update Redux store for the client side the same way we always do in traditional React/Redux app. [commit link](https://github.com/ngannguyen117/React-Bootcamp/commit/b409239ec8a4d2f44e42dc9d5c8d878fd5a990a1)
+
+  However, it requires more setting up to use Redux (accessing store, create Action Creators and Reducers) on the server side.
+
+  - The flow of data loading in a traditional React/Redux
+
+    <img src="screenshots/data-loading-traditional.png" width=350>
+
+  - Up to this point with SSR, the data loading we setup like in traditional React/Redux app won't work because we already send back to the browser HTML file before any Component can mount on the DOM, so the life method `componentDidMount` will never be called to fetch data.
+
+    <img src="screenshots/data-loading-ssr-1.png" width=400>
+
+  - We can fix that by finding which components will need to be rendered, and fetch all data for those components before render the components and send it back to the browser.
+
+    <img src="screenshots/data-loading-ssr-2.png" width=400>
+
+    <img src="screenshots/data-loading-ssr-3.png" width=400>
+
+  - **Figure out what components would have rendered (based on URL)**: to do this, we need to use `React Router Config` library. This library is a sub-package of `React Router`. Its purpose is to help with server side rendering in figuring out which components needed to be rendered without rendering it. However, to use it, we need to make changes to the routes definition `Routes.js`.
+
+  ```js
+  // Previous definition of Routes
+  <Route exact path="/" component={Home} />;
+
+  // New Routes.js
+  import Home from "./components/Home";
+  import UserList from "./components/UsersList";
+
+  export default [
+    {
+      path: "/",
+      component: Home,
+      exact: true,
+    },
+    {
+      path: "/users",
+      component: UserList,
+    },
+  ];
+
+  // in client.js and renderer.js we replace <Routes /> with
+  import { renderRoutes } from "react-router-config";
+  <div>{renderRoutes(Routes)}</div>;
+  ```
