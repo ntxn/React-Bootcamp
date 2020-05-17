@@ -172,4 +172,18 @@
   // in client.js and renderer.js we replace <Routes /> with
   import { renderRoutes } from "react-router-config";
   <div>{renderRoutes(Routes)}</div>;
+
+  // in src/index.js, use matchRoutes method to find out which components need to be render after creating the store
+  import { matchRoutes } from "react-router-config";
+  matchRoutes(Routes, req.path);
   ```
+
+  - **LoadData Functions**:
+
+    <img src="screenshots/load-data-1.png" width=550>
+
+    <img src="screenshots/load-data-2.png" width=650>
+
+    Why do we want to load data to the redux store on the server before rendering?
+
+    Because the rendering part is still React/Redux render components. Usually, on the traditional client side, Redux could rerender the app after receiving new data (through `componentDidMount`) but that will not work here because it never had that kickstart to start the Redux part. So to make it work with SSR when the app first renders, we load data to redux store. During the rendering step, the React/Redux app still uses `connect` function from `react-redux` to get connect to the Provider and render components with data from redux store.
