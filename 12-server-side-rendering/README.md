@@ -182,8 +182,112 @@
 
     <img src="screenshots/load-data-1.png" width=550>
 
-    <img src="screenshots/load-data-2.png" width=650>
+    <img src="screenshots/load-data-2.png" width=550>
 
     Why do we want to load data to the redux store on the server before rendering?
 
     Because the rendering part is still React/Redux render components. Usually, on the traditional client side, Redux could rerender the app after receiving new data (through `componentDidMount`) but that will not work here because it never had that kickstart to start the Redux part. So to make it work with SSR when the app first renders, we load data to redux store. During the rendering step, the React/Redux app still uses `connect` function from `react-redux` to get connect to the Provider and render components with data from redux store.
+
+  - **Client Rehydration**
+
+    Before the fix: The server renders the page with data from the store. Server returns the page to the browser with an empty store as initial state
+
+    <img src="screenshots/client-rehydration-1.png" width=600>
+
+    We have to include the data from the store on the server along with the HTML (as window.INITIAL_STATE) so that the browser can rehydrate the page with the right data.
+
+    <img src="screenshots/client-rehydration-2.png" width=350>
+
+  - **Authentication**
+
+    Normal process of authentication between browser and the API server
+
+    <img src="screenshots/auth-1.png" width=140>
+    <img src="screenshots/auth-2.png" width=580>
+
+    That process will not work with SSR (at least at the initial rendering) because the browser sends requests to the rendering server, the rendering server makes the requests to API server. The authentication cookie won't be sent to the rendering server because cookie is issued per Domain basis while the API server and render server have different sub-domains
+
+    <img src="screenshots/auth-3.png" width=140>
+    <img src="screenshots/auth-4.png" width=610>
+
+    **Why we cannot attach Json Web Token (JWT) to every request instead of using cookie?**: We can use JWT as cookie but in this discussion, we're talking about attaching JWT to the header, URL or body of the request.
+
+    Normal process with browser sends a request to the server with a JWT attached to header/url/body. This only works when we have control over what will be send over with the request because we have to attach the JWT.
+
+    <img src="screenshots/auth-jwt-1.png" width=500>
+
+    Use JWT with the Render Server: When the user goes to the browser and enter our address page, we have no control over the request to be able to attach the JWT to the header/url/body to the request. So after receiving the request, the server has to make a follow up request to get the JWT before it can send any response back. This means we won't be able to send back rendered HTML content to the browser. Only cookies are always being attached with the requests without us have to set it up.
+
+    <img src="screenshots/auth-jwt-2.png" width=500>
+
+    <img src="screenshots/auth-jwt-3.png" width=500>
+
+
+    **`SOLUTION`**: Setup a `proxy` on the rendering server. When a user attemps to authenticate with the app, rather than sending the user directly to API server, we'll send the users to the proxy running on our rendering server. The proxy will forward that authentication request to the API. After a cookie is issued by the API, the proxy will communicate that cookie back to the browser. So as far as the browser is concerned, the API doesn't exist. It will think that it's only communicating with the Render server.
+
+    <img src="screenshots/auth-5.png" width=900>
+
+    Initial Page Fetch: Server side, Followup AJAX requests: Client side. We have to make sure both call the same action creator
+
+    <img src="screenshots/auth-6.png" width=900>
+
+    During the `Initial Page Load` process, we need to correctly get the server to communicate directly with the API server. This means we don't go through the proxy but the request will be made from the action creator, which will use axios to make the fetch request to API. We need to make sure we attach the cookie from the original request to the request that axios makes.
+
+    <img src="screenshots/auth-7.png" width=800>
+
+    For `Followup Requests` which are made from the Browser, we'd be using the same Action Creator used in the Initial Page load. This time, the request made from axios will go through the proxy but we don't need to manually attach cookie because the browser already does it for us.
+
+    <img src="screenshots/auth-8.png" width=800>
+
+    - Setup proxy
+
+      ```js
+      // in src/index.js
+      import express from 'express';
+      import proxy from 'express-http-proxy';
+
+      const app = express();
+      app.use('/api', proxy('http://react-ssr-api.herokuapp.com/'));
+      ```
+
+    - Setup Axios and Redux thunk for Initial Page Load and followup requests processes.
+
+      <img src="screenshots/axios-thunk.png" width=600>
+
+      ```js
+      // Action Creator for both client and server
+
+      // in actions/index.js: api is the axiosInstance we pass in redux thunk.extraArguments
+      export const fetchUsers = () => async (dispatch, getState, api) => {
+        const res = await api.get('/users');
+        dispatch({ type: FETCH_USERS, payload: res });
+      };
+      ```
+
+      ```js
+      // FOR CLIENT
+
+      // in client.js
+      const axiosInstance = axios.create({ baseURL: '/api' });
+
+      const store = createStore(reducers, window.INITIAL_STATE, applyMiddleware(thunk.withExtraArgument(axiosInstance)));
+      ```
+
+      ```js
+      // FOR SERVER
+
+      // in src/index.js
+      const store = createStore(req); // pass req obj to createStore
+
+      // in createStore.js
+      export default req => {
+        const axiosInstance = axios.create({
+          baseURL: 'http://react-ssr-api.herokuapp.com',
+          headers: { cookie: req.get('cookie') || '' },
+        });
+
+        const store = createStore(reducers, {}, applyMiddleware(thunk.withExtraArgument(axiosInstance)));
+
+        return store;
+      };
+      ```
